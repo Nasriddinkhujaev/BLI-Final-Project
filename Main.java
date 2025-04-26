@@ -1,5 +1,4 @@
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.Random;
 
 public class Main {
@@ -14,14 +13,20 @@ public class Main {
         // Ball variables
         double ball_x = 0.2;
         double ball_y = 0.5;
-        double ball_radius = 0.05;
+        double ball_radius = 0.02;
         double moveAmount = 0.02;
 
         
         // brick variables
-        double random_brick_y = randomNumGen.nextDouble(1.0);
+        double random_brick_y = randomNumGen.nextDouble();
         double brick_x = 1;
-        double brick_radius = 0.2;
+        double brick_radius = 0.1;
+        double brick_width = brick_radius;  
+        double brick_height = brick_radius; 
+
+
+        // score variable
+        int score = 0;
        
 
         
@@ -38,59 +43,67 @@ public class Main {
                 ball_y += moveAmount;
             }
 
-              
-            
-
-
-
-    //         // Move bricks and check for reset
-    //         boolean resetBricks = false;
-    //         for (int i = 0; i < bricks.size(); i++) {
-    //             Brick brick = bricks.get(i);
-    //             brick.x -= brickSpeed;
-    //             if (brick.x + brickWidth < 0) {
-    //                 resetBricks = true;
-    //             }
-    //         }
-
-    //         if (resetBricks) {
-    //             bricks.removeIf(brick -> brick.x + brickWidth < 0);
-    //             bricks.add(new Brick(1.0, 0.2 + new Random().nextDouble() * (1 - brickHeight - 0.2)));
-    //         }
-
-    //         // Draw bricks and check collision
-    //         PennDraw.setPenColor(110, 179, 92); // Brick color
-    //         for (int i = 0; i < bricks.size(); i++) {
-    // Brick brick = bricks.get(i);
-
-    // // Draw the brick
-    // PennDraw.filledRectangle(brick.x + brickWidth / 2, brick.y, brickWidth, brickHeight);
-
-    // // Check collision with ball
-    // if (brick.x < x + ball_radius && brick.x + brickWidth > x - ball_radius &&
-    //     y + ball_radius > brick.y - brickHeight / 2 && y - ball_radius < brick.y + brickHeight / 2) {
-    //     System.out.println("Collision detected!");
-    //     return; // End the game on collision
-    //  }
-    // }
 
              // Draw the ball
             PennDraw.setPenColor(255, 0, 0); // Red ball
             PennDraw.filledCircle(ball_x, ball_y, ball_radius);
 
+
             // draw the brick
             PennDraw.setPenColor(250, 120, 0);
             PennDraw.filledSquare(brick_x, random_brick_y, brick_radius);
 
+
+            // moving the brick speed of 0.02
             brick_x -= 0.02;
-        
-           boolean collision = (ball_x + ball_radius >= brick_x + brick_radius)  &&  (ball_y + brick_radius >= random_brick_y + brick_radius);
-           
-           System.out.println(collision);
+
+
+            // Check if the brick is off-screen 
+            if (brick_x + brick_width < 0) {
+                brick_x = 1.0; // Reset to right side of the canvas
+                random_brick_y = randomNumGen.nextDouble(); // New random Y position
+                score++;
+            }
+
+
+            // printing out the score
+            PennDraw.text(.9, .9, "score " + score);
+
+
+            // check for collision 
+            boolean collision = (ball_x + ball_radius > brick_x - brick_width  &&
+                                 ball_x - ball_radius < brick_x + brick_width  &&
+                                 ball_y + ball_radius > random_brick_y - brick_height  &&
+                                 ball_y - ball_radius < random_brick_y + brick_height );
+
+
            if( collision){
                System.out.println("Collision happened");
                touched = true;
+               PennDraw.setPenColor(PennDraw.GREEN);
+               PennDraw.text(0.5, 0.5, "Collision happened!");
+               PennDraw.advance(); // Show the text
            }
+
+
+        //    leveling up 
+
+           boolean level2 = score == 5;
+           boolean level3 = score == 10;
+           boolean level4 = score == 15;
+           boolean level5 = score == 20;
+           boolean level6 = score == 25;
+           boolean level7 = score == 30;
+
+
+        if(level2 || level3 || level4){
+            brick_x -= 3;
+            ball_radius  += 0.03;
+            brick_radius += 0.03;
+        }else if( level5 || level6 || level7){
+            brick_x -=3;
+        }
+
 
             PennDraw.advance();
         }
